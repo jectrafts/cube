@@ -1,0 +1,14 @@
+"w",
+"#ffcf00",
+"#00008f",
+"#009f0f"
+"#ff6f00",
+"#cf0000",
+['blue', 'white', 'green', 'red', 'white', 'yellow', 'white', 'red', 'orange']
+  
+white =['yellow', 'red', 'white', 'yellow', 'white', 'red', 'green', 'white', 'blue']
+yellow= ['red' 'white' 'red' 'red' 'yellow' 'white' 'red' 'yellow' 'orange']
+red =['white', 'red', 'yellow', 'blue', 'red', 'orange', 'yellow', 'blue', 'yellow']
+orange= ['green', 'yellow', 'green', 'white', 'orange', 'orange', 'white', 'green', 'white']
+green =['orange', 'orange', 'red', 'green', 'green', 'yellow', 'blue', 'green', 'blue']
+blue =['orange', 'blue', 'orange', 'blue', 'blue', 'green', 'green', 'orange', 'blue']
