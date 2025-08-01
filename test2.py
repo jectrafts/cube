@@ -6,11 +6,39 @@
 wooo=0
 ropes=['blue', 'white', 'green', 'red', 'white', 'yellow', 'white', 'red', 'orange']
 import numpy as np
+from twophase import solver as tw
 import matplotlib.pyplot as plt
 from matplotlib import widgets
 from projection import Quaternion, project_points
 import time
+white =['yellow', 'red', 'white', 'yellow', 'white', 'red', 'green', 'white', 'blue']
+yellow= ['red' ,'white', 'red', 'red', 'yellow', 'white', 'red' ,'yellow', 'orange']
+red =['white', 'red', 'yellow', 'blue', 'red', 'orange', 'yellow', 'blue', 'yellow']
+orange= ['green', 'yellow', 'green', 'white', 'orange', 'orange', 'white', 'green', 'white']
+green =['orange', 'orange', 'red', 'green', 'green', 'yellow', 'blue', 'green', 'blue']
+blue =['orange', 'blue', 'orange', 'blue', 'blue', 'green', 'green', 'orange', 'blue']
+faces = [white, blue, red, yellow, green, orange]
 abc =1
+color_map = {
+    white[4]: 'U',   # white center
+    blue[4]: 'R',    # blue center
+    red[4]: 'F',     # red center
+    yellow[4]: 'D',  # yellow center
+    green[4]: 'L',   # green center
+    orange[4]: 'B'   # orange center
+}
+
+# Convert to 54-letter cube string
+cube_str = ''.join(color_map[color] for face in faces for color in face)
+
+# Solve
+solution = tw.solve(cube_str)
+
+# Output
+print("Cube string:", cube_str)
+print("Solution:", solution)
+solution = solution[:-5]
+pr = str(solution)
 """
 Sticker representation
 ----------------------
@@ -55,6 +83,7 @@ red =['white', 'red', 'yellow', 'blue', 'red', 'orange', 'yellow', 'blue', 'yell
 orange= ['green', 'yellow', 'green', 'white', 'orange', 'orange', 'white', 'green', 'white']
 green =['orange', 'orange', 'red', 'green', 'green', 'yellow', 'blue', 'green', 'blue']
 blue =['orange', 'blue', 'orange', 'blue', 'blue', 'green', 'green', 'orange', 'blue']
+
 color_to_hex = {
     'white': "#ffffff",  # or "w" if you really want a symbol
     'yellow': "#ffcf00",
@@ -84,6 +113,46 @@ def transpose_and_flatten(arr):
 
 blueh = transpose_and_flatten(blueh)
 greenh = transpose_and_flatten(greenh)
+
+def parse_moves(pr):
+    z = []  # faces
+    f = []  # counts
+    i = 0
+    while i < len(pr):
+        if pr[i] == ' ':
+            i += 1
+            continue
+        z.append(pr[i])
+        f.append(int(pr[i + 1]))
+        i += 3
+    return list(zip(z, f))
+
+def _play_moves(self, event):
+    pr = "U2 R2 F1 L1 F2 B2 L2 F3 L1 F1 B2 U2 B2 L2 B2 L2 D1 F2 U1 F2"
+    moves = parse_moves(pr)
+    for face, count in moves:
+        self.rotate_face(face, count)
+        color_map = {
+        white[4]: 'U',   # white center
+        blue[4]: 'R',    # blue center
+        red[4]: 'F',     # red center
+        yellow[4]: 'D',  # yellow center
+        green[4]: 'L',   # green center
+        orange[4]: 'B'   # orange center
+    }
+
+    # Convert to 54-letter cube string
+    cube_str = ''.join(color_map[color] for face in faces for color in face)
+
+    # Solve
+    solution = tw.solve(cube_str)
+
+    # Output
+    print("Cube string:", cube_str)
+    print("Solution:", solution)
+    solution = solution[:-5]
+    pr = str(solution)
+
 
 
 def rotate_90_right(arr):
@@ -293,6 +362,34 @@ class Cube:
 
 
 class InteractiveCube(plt.Axes):
+    def _play_moves(self, event):
+        faces = [white, blue, red, yellow, green, orange]
+
+        # Create color map based on center stickers
+        color_map = {
+            white[4]: 'U',   # white center
+            blue[4]: 'R',    # blue center
+            red[4]: 'F',     # red center
+            yellow[4]: 'D',  # yellow center
+            green[4]: 'L',   # green center
+            orange[4]: 'B'   # orange center
+        }
+
+        # Convert to 54-letter cube string
+        cube_str = ''.join(color_map[color] for face in faces for color in face)
+
+        # Solve
+        solution = tw.solve(cube_str)
+
+        # Output
+        print("Cube string:", cube_str)
+        print("Solution:", solution)
+        solution = solution[:-5]
+        pr = str(solution)
+        moves = parse_moves(pr)
+        for face, count in moves:
+            self.rotate_face(face, count)
+
     def __init__(self, cube=None,
                  interactive=True,
                  view=(0, 0, 10),
@@ -383,6 +480,11 @@ class InteractiveCube(plt.Axes):
         self._ax_solve = self.figure.add_axes([0.55, 0.05, 0.2, 0.075])
         self._btn_solve = widgets.Button(self._ax_solve, 'Solve Cube')
         self._btn_solve.on_clicked(self._solve_cube)
+        self._ax_play = self.figure.add_axes([0.75, 0.125, 0.2, 0.075])
+        self._btn_play = widgets.Button(self._ax_play, 'Play Moves')
+        self._btn_play.on_clicked(self._play_moves)
+
+
 
     def _project(self, pts):
         return project_points(pts, self._current_rot, self._view, [0, 1, 0])
